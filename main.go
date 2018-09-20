@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	svg "github.com/ajstarks/svgo"
 	"github.com/gorilla/mux"
@@ -18,13 +19,22 @@ func main() {
 	}
 }
 
-func handler(w http.ResponseWriter, req *http.Request) {
-	// TODO get gorilla mux queries
+func handler(w http.ResponseWriter, r *http.Request) {
+	v := r.URL.Query()
+	size := v.Get("size")
+	s, err := strconv.Atoi(size)
+	if err != nil {
+		s = 200
+	}
 	w.Header().Set("Content-Type", "image/svg+xml")
-	drawDO(w, 200, "blue")
+	drawDO(w, s, v.Get("color"))
 }
 
 func drawDO(w io.Writer, size int, color string) {
+	if color == "" {
+		color = "blue"
+	}
+
 	canvas := svg.New(w)
 	width, height := 500, 500
 	canvas.Start(width, height)
